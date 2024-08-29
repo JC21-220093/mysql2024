@@ -1,4 +1,4 @@
-package jp.ac.jc21;
+package jp.ac.jc21.kadai;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class IndexServlet
  */
-@WebServlet(urlPatterns = { "/result1" })
-public class Result1Servlet extends HttpServlet {
+@WebServlet(urlPatterns = { "/item" })
+public class ProductServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	final String dbServer = "192.168.54.231";
@@ -40,29 +40,60 @@ public class Result1Servlet extends HttpServlet {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection  conn = DriverManager.getConnection(url, user, pass);
 			
-			String sql ="SELECT item_id,item_name,price FROM Items" + " Where item_id = ? ";
+			String sql1 ="SELECT MAKER_CODE,MAKER_NAME FROM MAKER";
+			String sql2 ="SELECT PRODUCT.PRODUCT_CODE,PRODUCT.PRODUCT_NAME,PRODUCT.MAKER_CODE,MAKER.MAKER_NAME FROM PRODUCT "
+					+ "INNER JOIN MAKER ON PRODUCT.MAKER_CODE = MAKER.MAKER_CODE";
 			
-			PreparedStatement statement = conn.prepareStatement(sql);
 			
-			String id = request.getParameter("ID");
-			statement.setString(1, id);
+			PreparedStatement statement = conn.prepareStatement(sql1);
+			PreparedStatement statement2 = conn.prepareStatement(sql2);
 			
 			ResultSet rs = statement.executeQuery();
 			
 			ArrayList<String[]> result = new ArrayList<>();
 			
+			String id = request.getParameter("ID");
+
 			while(rs.next()==true) {
-				String[] s = new String[3];
-				s[0] = rs.getString("item_name");
-				s[1] = rs.getString("item_id");
-				s[2] = rs.getString("price");
+				String[] s = new String[2];
+				s[0] = rs.getString("MAKER_CODE");
+				s[1] = rs.getString("MAKER_NAME");
+				
 				result.add(s);
 			}
 			
-			request.setAttribute("result", result);
-			RequestDispatcher rd =
-							request.getRequestDispatcher("/WEB-INF/jsp/result1.jsp");
-			rd.forward(request, response);
+
+
+			if(id != null) {
+				sql2 = sql2 +  " Where PRODUCT.MAKER_CODE = ? ";
+				statement2 = conn.prepareStatement(sql2);
+				id = request.getParameter("ID");
+				statement2.setString(1, id);
+			}
+			
+
+			ResultSet rs2 = statement2.executeQuery();
+			
+			
+			ArrayList<String[]> result2 = new ArrayList<>();
+			
+			while(rs2.next()==true) {
+				String[] s2 = new String[3];
+				s2[0] = rs2.getString("PRODUCT_CODE");
+				s2[1] = rs2.getString("PRODUCT_NAME");
+				s2[2] = rs2.getString("MAKER_NAME");
+				result2.add(s2);
+			}
+			
+			request.setAttribute("product", result);
+			request.setAttribute("product2", result2);
+			
+			
+			RequestDispatcher rd1 =
+					request.getRequestDispatcher("/WEB-INF/jsp/product.jsp");
+			rd1.forward(request, response);
+			
+			
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

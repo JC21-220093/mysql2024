@@ -5,17 +5,16 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>JK3B 14</title>
+<title>JK3B14</title>
 </head>
 
 <%
-	ArrayList<String[]> result = 
-		(ArrayList<String[]>) request.getAttribute("result");
-	
+	ArrayList<String[]> result = (ArrayList<String[]>) request.getAttribute("result");
 %>
 	
 <body>
-<SELECT NAME="ITEM_NO">
+<FORM METHOD="GET" ACTION="./result1">
+<SELECT NAME="ID">
 
 	<% for (String[] ss : result){ %>
 		<OPTION VALUE="<%= ss[1] %>">
@@ -24,5 +23,7 @@
 	<% } %>
 
 </SELECT>
+<INPUT TYPE="SUBMIT" VALUE="絞り込む"/>
+</FORM>
 </body>
 </html>
